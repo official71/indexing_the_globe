@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <title>city -- Indexing the Globe</title>
+</head>
+
+<body>
+
+  <div class="container">
+    <h3>City -- Indexing the Globe</h3>
+  </div>
+
+  <div class="container">
+    <ol class="breadcrumb">
+      <li><a href="/">home</a></li>
+      <li><a href="/search">search</a></li>
+      <li class="active">city</li>
+    </ol>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h1>{{city['name'].decode('utf-8')}}</h1>
+        <table border="0">
+          <tr>
+            <td style="padding-right: 30px;"><strong>Country</strong></td>
+            <td>{{city['cc']}}</td>
+          </tr>
+          <tr>
+            <td style="padding-right: 30px;"><strong>Coordinates</strong></td>
+            <td>{{city['lat']}}, {{city['lon']}}</td>
+          </tr>
+          <tr>
+            <td style="padding-right: 30px;"><strong>Alternate Names</strong></td>
+            <td>{{city['altnames'].decode('utf-8')}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div style="height: 20px; width:100%"></div>
+    <div class="container">
+
+      <div class="row">
+        <div class="col-md-12">
+          <h3>Proximity Query</h3>
+          <form class="form-inline" id="proximity" method="GET" action="/proximity">
+            <div class="form-group">
+              <label for="k">Find </label>
+              <select class="form-control" name="k" id="k">
+                <option>3</option>
+                <option>10</option>
+                <option>50</option>
+                <option>100</option>
+                <option>500</option>
+              </select>
+              <label for="k"> cities geographically closest to {{city['name'].decode('utf-8')}}, </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input name="same_country" id="same_country" type="checkbox"> restricting results in the same country (optional)
+              </label>
+            </div>
+            <input type="hidden" name="cid" value={{city['cid']}} />
+            <div class="form-group" style="height: 100%; width:20px"></div>
+            <button type="submit" class="btn btn-primary">Go!</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <div style="height: 20px; width:100%"></div>
+
+  </div>
+</body>
+</html>
