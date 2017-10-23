@@ -2,6 +2,8 @@
 
 ## Approaches
 
+Application is built with Python Flask framework. All data are in-memory; no database is used since the application is light-weight and only requires reading.
+
 ### Proximity Query
 
 * Given the latitude and longitude of two cities, the distance is calculated using [geopy 1.11.0](https://pypi.python.org/pypi/geopy) library.
@@ -13,7 +15,7 @@
 
 * Single keyword matching: for a single query word, the cities whose names matches the keyword is of highest priority in the returned results, following are those whose alternate names contain the keyword, and finally "any" string contents contain the keyword. To implement this, a *reversed index* data structure is built at the beginning before the server starts, which is a hash table that maps words to the documents (in this case cities) that contains the words. For each word, 3 tiers of lists are maintained, with tier 0 list being the most important (derived from the city names), tier 1 from the city alterante names and tier 2 from other strings. For each query, we search documents in the order of tiers and stop when *any-K* results have been found.
 * Multiple keywords matching: for multiple keywords, in additional to the mechanism of single keyword matching, we also take into consideration the inversed document frequency (idf) of each query word, favoring the words with higher idf. Besides, documents (cities) that hits more keywords are preferred.
-* Preprocessing data is also required, since forming the reversed index is both time and space consuming. However it significantly improves the lexical query at runtime.
+* Preprocessing data is also required, data is populated into a `SearchEngine` class before server runs, since forming the reversed index is both time and space consuming. However it significantly improves the lexical query at runtime.
 
 ## Cloud Deployment
 
