@@ -2,6 +2,24 @@ from heapq import *
 from geopy.distance import vincenty
 
 class GeoInfo(object):
+    """
+    Geographical information of cities for proximity query.
+
+    ...
+
+    Attributes
+    ----------
+    division : int
+        latitude/longitude of the globe are divided into divsion by division grids.
+
+    Methods
+    -------
+    add(city=City())
+        put one city's geographical info in the system.
+    knearest(city=City(), k=10, same_country=False)
+        returns the k-nearest cities in distance of input city, with optional constraints of cities being in the same country.
+
+    """
     def __init__(self, division=90):
         self.division = division
 
@@ -16,8 +34,12 @@ class GeoInfo(object):
         # rows: latitude, cols: longitude
         self.grids = [[set() for _ in xrange(division)] for _ in xrange(division)]
 
-    # put the city into its grid
-    # @param city, type City
+    """add one city into the system
+    Parameters
+    ----------
+    city : City
+        city instance.
+    """
     def add(self, city):
         if not city: return
         r = int(max(0, (city.latitude-self.lat_min)/self.lat_precision))
@@ -28,13 +50,21 @@ class GeoInfo(object):
     def __dist(self, lat1, lon1, lat2, lon2):
         return vincenty((lat1, lon1), (lat2, lon2)).miles
 
-    # traversing the grids, starting from grid [row][col] as the center, 
-    # then its neighboring grids, then further neighbors, due to the nature 
-    # of longitudes, when we reach one end of the grid horizontally, we continue 
-    # from the other side (b/c lon.-180 and lon.180 are connected)
-    # @param row, col, the center grid
-    # @param step, distance of the searching circle to the center grid, e.g. when step = 1, we search 
-    #        the grids that is of distance 1 to the center
+    """traversing the grids from the center
+    Parameters
+    ----------
+    row : int
+        row of the center grid
+    col : int
+        column of the center grid
+    step : int
+        distance of the searching circle to the center grid, e.g. when step = 1, we search the grids that is of distance 1 to the center
+
+    Yields
+    -------
+    tuple(int, int)
+        row, col of the next grid to search.
+    """
     def __neighbors(self, row, col, step):
         # search grids in the row to the north of center [row, col] by the distance of step
         if 0 <= row-step < self.division:
@@ -70,11 +100,21 @@ class GeoInfo(object):
             for r in xrange(row+step, row-step, -1):
                 if 0 <= r < self.division: yield (r, self.division+col-step)
     
-    # find k nearest cities
-    # @param city, type City
-    # @param k, type int
-    # @param same_country, type boolean
-    # @rtype, list[(distance(miles), city ID)]
+    """find k nearest cities
+    Parameters
+    ----------
+    city : class City
+        the city to search around.
+    k : int
+        number of nearest neighbors to find
+    same_country : boolean
+        True if results must be of the same country as input city
+
+    Returns
+    -------
+    list[tuple(float, int)]
+        list of the nearest cities with their distances (in miles) and ID.
+    """
     def knearest(self, city, k=10, same_country=False):
         ocid, lat, lon, cc = city.geonameid, city.latitude, city.longitude, city.country_code
         row = int(max(0, (lat-self.lat_min)/self.lat_precision))

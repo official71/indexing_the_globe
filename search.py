@@ -24,6 +24,30 @@ class InvertedList(object):
 
 
 class SearchEngine(object):
+    """
+    search engine for lexical query on cities.
+
+    ...
+
+    Attributes
+    ----------
+    tiers : int
+        number of tiers that each word's inverted list has, default 3.
+    inverted_lists : dict
+        key: word (str), value: inverted lists of word (class InvertedList)
+    df : dict
+        document frequency of each word
+    documents : set
+        set of documents (cities) ID to avoid duplicates
+
+    Methods
+    -------
+    add_city(city=City())
+        put one city's lexcial info in the system.
+    search(query="san francisco", k=30)
+        returns the any-k results that lexically match the input query.
+
+    """
     def __init__(self):
         self.tiers = 3
         self.inverted_lists = {}
@@ -36,8 +60,12 @@ class SearchEngine(object):
             self.inverted_lists[word] = InvertedList(word, self.tiers)
         return self.inverted_lists[word]
 
-    # add one city into the inverted index for future searching
-    # @param city, type City
+    """add one city into the inverted index for future searching
+    Parameters
+    ----------
+    city : City
+        city instance.
+    """
     def add_city(self, city):
         if not city: return
         cid = city.geonameid
@@ -72,10 +100,19 @@ class SearchEngine(object):
         for s in words:
             self.df[s] += 1
 
-    # search key words, returns list of city IDs, sorted by relevance
-    # @param query, query string, type str
-    # @param k, number of results needed, type int
-    # @rtype list[int]
+    """search key words for cities
+    Parameters
+    ----------
+    query : str
+        query string, if there are multiple terms, separated with spaces.
+    k : int
+        number of cities to return, forming the any-k results
+
+    Returns
+    -------
+    list[int]
+        list of city ID.
+    """
     def search(self, query, k=30):
         
         # comparison function of search results, type: (cid, (keyword hits, weight))
