@@ -32,26 +32,37 @@ class GeoInfo(object):
     # then its neighboring grids, then further neighbors, due to the nature 
     # of longitudes, when we reach one end of the grid horizontally, we continue 
     # from the other side (b/c lon.-180 and lon.180 are connected)
+    # @param row, col, the center grid
+    # @param step, distance of the searching circle to the center grid, e.g. when step = 1, we search 
+    #        the grids that is of distance 1 to the center
     def __neighbors(self, row, col, step):
+        # search grids in the row to the north of center [row, col] by the distance of step
         if 0 <= row-step < self.division:
             for c in xrange(col-step, col+step):
+                # from west to east, search the row, for longitude if reaching the west-most boundary,
+                # continue from the east-most boundary to the west b/c it's continuous
                 if c < 0: yield (row-step, self.division+c)
                 if 0 <= c < self.division: yield (row-step, c)
+                # similarly, for longitude if reaching the east-most boundary, continue from west-most side
                 if c >= self.division: yield (row-step, c-self.division)
         
+        # search grids in the column to the east side of the center by the distance of step
         if 0 <= col+step < self.division:
             for r in xrange(row-step, row+step):
                 if 0 <= r < self.division: yield (r, col+step)
+        # if reaching the east-most side, continue searching from the west-most side
         elif col+step >= self.division:
             for r in xrange(row-step, row+step):
                 if 0 <= r < self.division: yield (r, col+step-self.division)
         
+        # search grids in the row to the south side of the center
         if 0 <= row+step < self.division:
             for c in xrange(col+step, col-step, -1):
                 if c < 0: yield (row+step, self.division+c)
                 if 0 <= c < self.division: yield (row+step, c)
                 if c >= self.division: yield (row+step, c-self.division)
         
+        # search grids in the column to the west side of the center 
         if 0 <= col-step < self.division:
             for r in xrange(row+step, row-step, -1):
                 if 0 <= r < self.division: yield (r, col-step)
